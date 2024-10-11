@@ -13,10 +13,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/mincho-artesoft/webrtc/pkg/rtcerr"
 	"github.com/pion/datachannel"
 	"github.com/pion/logging"
 	"github.com/pion/sctp"
-	"github.com/mincho-artesoft/webrtc/v4/pkg/rtcerr"
 )
 
 const sctpMaxChannels = uint16(65535)

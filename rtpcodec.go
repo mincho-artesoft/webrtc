@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mincho-artesoft/webrtc/v4/internal/fmtp"
+	"github.com/mincho-artesoft/webrtc/internal/fmtp"
 )
 
 // RTPCodecType determines the type of a codec

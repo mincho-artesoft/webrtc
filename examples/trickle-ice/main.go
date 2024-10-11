@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/mincho-artesoft/webrtc/v4"
+	"github.com/mincho-artesoft/webrtc"
 	"golang.org/x/net/websocket"
 )
 

@@ -7,7 +7,7 @@
 package webrtc
 
 import (
-	"github.com/mincho-artesoft/webrtc/v4/internal/util"
+	"github.com/mincho-artesoft/webrtc/internal/util"
 )
 
 type testORTCStack struct {

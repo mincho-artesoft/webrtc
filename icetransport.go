@@ -15,8 +15,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/mincho-artesoft/webrtc/v4/internal/mux"
-	"github.com/mincho-artesoft/webrtc/v4/internal/util"
+	"github.com/mincho-artesoft/webrtc/internal/mux"
+	"github.com/mincho-artesoft/webrtc/internal/util"
 	"github.com/pion/ice/v4"
 	"github.com/pion/logging"
 )

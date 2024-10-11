@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"sync/atomic"
 
-	"github.com/mincho-artesoft/webrtc/v4/pkg/rtcerr"
+	"github.com/mincho-artesoft/webrtc/pkg/rtcerr"
 )
 
 type stateChangeOp int

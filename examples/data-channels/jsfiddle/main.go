@@ -17,7 +17,7 @@ import (
 	"strings"
 	"syscall/js"
 
-	"github.com/mincho-artesoft/webrtc/v4"
+	"github.com/mincho-artesoft/webrtc"
 )
 
 func main() {

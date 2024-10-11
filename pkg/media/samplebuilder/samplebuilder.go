@@ -8,8 +8,8 @@ import (
 	"math"
 	"time"
 
+	"github.com/mincho-artesoft/webrtc/pkg/media"
 	"github.com/pion/rtp"
-	"github.com/mincho-artesoft/webrtc/v4/pkg/media"
 )
 
 // SampleBuilder buffers packets until media frames are complete.

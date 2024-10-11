@@ -19,9 +19,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mincho-artesoft/webrtc"
 	"github.com/pion/rtcp"
 	"github.com/pion/rtp"
-	"github.com/mincho-artesoft/webrtc/v4"
 )
 
 func main() { // nolint:gocognit

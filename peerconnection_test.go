@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/mincho-artesoft/webrtc/pkg/rtcerr"
 	"github.com/pion/sdp/v3"
 	"github.com/pion/transport/v3/test"
-	"github.com/mincho-artesoft/webrtc/v4/pkg/rtcerr"
 	"github.com/stretchr/testify/assert"
 )
 

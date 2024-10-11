@@ -15,10 +15,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/mincho-artesoft/webrtc"
+	"github.com/mincho-artesoft/webrtc/pkg/media"
+	"github.com/mincho-artesoft/webrtc/pkg/media/ivfreader"
 	"github.com/pion/randutil"
-	"github.com/mincho-artesoft/webrtc/v4"
-	"github.com/mincho-artesoft/webrtc/v4/pkg/media"
-	"github.com/mincho-artesoft/webrtc/v4/pkg/media/ivfreader"
 )
 
 var peerConnection *webrtc.PeerConnection //nolint

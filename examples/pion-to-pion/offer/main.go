@@ -15,8 +15,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/mincho-artesoft/webrtc"
 	"github.com/pion/randutil"
-	"github.com/mincho-artesoft/webrtc/v4"
 )
 
 func signalCandidate(addr string, c *webrtc.ICECandidate) error {

@@ -19,9 +19,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mincho-artesoft/webrtc/v4"
-	"github.com/mincho-artesoft/webrtc/v4/pkg/media"
-	"github.com/mincho-artesoft/webrtc/v4/pkg/media/ivfreader"
+	"github.com/mincho-artesoft/webrtc"
+	"github.com/mincho-artesoft/webrtc/pkg/media"
+	"github.com/mincho-artesoft/webrtc/pkg/media/ivfreader"
 )
 
 const cipherKey = 0xAA

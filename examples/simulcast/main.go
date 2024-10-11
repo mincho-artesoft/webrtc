@@ -18,8 +18,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mincho-artesoft/webrtc"
 	"github.com/pion/rtcp"
-	"github.com/mincho-artesoft/webrtc/v4"
 )
 
 // nolint:gocognit

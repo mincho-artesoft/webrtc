@@ -18,12 +18,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mincho-artesoft/webrtc"
+	"github.com/mincho-artesoft/webrtc/pkg/media"
+	"github.com/mincho-artesoft/webrtc/pkg/media/ivfreader"
 	"github.com/pion/interceptor"
 	"github.com/pion/interceptor/pkg/cc"
 	"github.com/pion/interceptor/pkg/gcc"
-	"github.com/mincho-artesoft/webrtc/v4"
-	"github.com/mincho-artesoft/webrtc/v4/pkg/media"
-	"github.com/mincho-artesoft/webrtc/v4/pkg/media/ivfreader"
 )
 
 const (

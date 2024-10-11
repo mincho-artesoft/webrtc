@@ -17,9 +17,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/mincho-artesoft/webrtc"
 	"github.com/pion/interceptor"
 	"github.com/pion/interceptor/pkg/intervalpli"
-	"github.com/mincho-artesoft/webrtc/v4"
 )
 
 // nolint:gocognit

@@ -19,9 +19,9 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/mincho-artesoft/webrtc"
 	"github.com/pion/interceptor"
 	"github.com/pion/interceptor/pkg/stats"
-	"github.com/mincho-artesoft/webrtc/v4"
 )
 
 // How ofter to print WebRTC stats

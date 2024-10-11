@@ -11,8 +11,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mincho-artesoft/webrtc"
 	"github.com/pion/logging"
-	"github.com/mincho-artesoft/webrtc/v4"
 )
 
 // Everything below is the Pion WebRTC API! Thanks for using it ❤️.

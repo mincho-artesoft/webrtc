@@ -10,8 +10,8 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/mincho-artesoft/webrtc/pkg/rtcerr"
 	"github.com/pion/stun/v3"
-	"github.com/mincho-artesoft/webrtc/v4/pkg/rtcerr"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/mincho-artesoft/webrtc/pkg/media"
 	"github.com/pion/rtp"
-	"github.com/mincho-artesoft/webrtc/v4/pkg/media"
 	"github.com/stretchr/testify/assert"
 )
 
