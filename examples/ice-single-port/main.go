@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/pion/ice/v4"
-	"github.com/pion/webrtc/v4"
+	"github.com/mincho-artesoft/webrtc/v4"
 )
 
 var api *webrtc.API //nolint

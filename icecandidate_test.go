@@ -129,7 +129,7 @@ func TestICECandidate_Convert(t *testing.T) {
 		assert.NoError(t, err)
 
 		// first copy the candidate ID so it matches the new one
-		testCase.native.statsID = expectedICE.ID()
+		testCase.native.StatsID = expectedICE.ID()
 		actualICE, err := testCase.native.toICE()
 		assert.NoError(t, err)
 

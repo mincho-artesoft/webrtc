@@ -11,7 +11,7 @@ import (
 
 // ICECandidate represents a ice candidate
 type ICECandidate struct {
-	statsID        string
+	StatsID        string
 	Foundation     string           `json:"foundation"`
 	Priority       uint32           `json:"priority"`
 	Address        string           `json:"address"`
@@ -40,6 +40,35 @@ func newICECandidatesFromICE(iceCandidates []ice.Candidate) ([]ICECandidate, err
 	return candidates, nil
 }
 
+func NewICECandidateFromICE(i ice.Candidate) (ICECandidate, error) {
+	typ, err := convertTypeFromICE(i.Type())
+	if err != nil {
+		return ICECandidate{}, err
+	}
+	protocol, err := NewICEProtocol(i.NetworkType().NetworkShort())
+	if err != nil {
+		return ICECandidate{}, err
+	}
+
+	c := ICECandidate{
+		StatsID:    i.ID(),
+		Foundation: i.Foundation(),
+		Priority:   i.Priority(),
+		Address:    i.Address(),
+		Protocol:   protocol,
+		Port:       uint16(i.Port()),
+		Component:  i.Component(),
+		Typ:        typ,
+		TCPType:    i.TCPType().String(),
+	}
+
+	if i.RelatedAddress() != nil {
+		c.RelatedAddress = i.RelatedAddress().Address
+		c.RelatedPort = uint16(i.RelatedAddress().Port)
+	}
+
+	return c, nil
+}
 func newICECandidateFromICE(i ice.Candidate) (ICECandidate, error) {
 	typ, err := convertTypeFromICE(i.Type())
 	if err != nil {
@@ -51,7 +80,7 @@ func newICECandidateFromICE(i ice.Candidate) (ICECandidate, error) {
 	}
 
 	c := ICECandidate{
-		statsID:    i.ID(),
+		StatsID:    i.ID(),
 		Foundation: i.Foundation(),
 		Priority:   i.Priority(),
 		Address:    i.Address(),
@@ -71,7 +100,7 @@ func newICECandidateFromICE(i ice.Candidate) (ICECandidate, error) {
 }
 
 func (c ICECandidate) toICE() (ice.Candidate, error) {
-	candidateID := c.statsID
+	candidateID := c.StatsID
 	switch c.Typ {
 	case ICECandidateTypeHost:
 		config := ice.CandidateHostConfig{

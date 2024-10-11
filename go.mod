@@ -1,6 +1,6 @@
 module github.com/mincho-artesoft/webrtc/v4
 
-go 1.20
+go 1.23.2
 
 require (
 	github.com/pion/datachannel v1.5.9

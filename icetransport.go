@@ -8,15 +8,17 @@ package webrtc
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
+	"github.com/mincho-artesoft/webrtc/v4/internal/mux"
+	"github.com/mincho-artesoft/webrtc/v4/internal/util"
 	"github.com/pion/ice/v4"
 	"github.com/pion/logging"
-	"github.com/pion/webrtc/v4/internal/mux"
-	"github.com/pion/webrtc/v4/internal/util"
 )
 
 // ICETransport allows an application access to information about the ICE
@@ -33,7 +35,7 @@ type ICETransport struct {
 	state atomic.Value // ICETransportState
 
 	gatherer *ICEGatherer
-	conn     *ice.Conn
+	Conn     *ice.Conn
 	mux      *mux.Mux
 
 	ctx       context.Context
@@ -42,6 +44,36 @@ type ICETransport struct {
 	loggerFactory logging.LoggerFactory
 
 	log logging.LeveledLogger
+}
+
+func (t *ICETransport) AddICECandidate(candidateInit ICECandidateInit) error {
+	candidateValue := strings.TrimPrefix(candidateInit.Candidate, "candidate:")
+
+	if candidateValue == "" {
+		return fmt.Errorf("candidate string is empty")
+	}
+
+	iceCandidate, err := ice.UnmarshalCandidate(candidateValue)
+	if err != nil {
+		if errors.Is(err, ice.ErrUnknownCandidateTyp) || errors.Is(err, ice.ErrDetermineNetworkType) {
+			fmt.Printf("Discarding remote candidate: %s\n", err)
+			return nil
+		}
+		return err
+	}
+
+	c, err := newICECandidateFromICE(iceCandidate)
+	if err != nil {
+		return err
+	}
+
+	if iceCandidate != nil {
+		err = t.AddRemoteCandidate(&c)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // GetSelectedCandidatePair returns the selected candidate pair on which packets are sent
@@ -167,10 +199,10 @@ func (t *ICETransport) Start(gatherer *ICEGatherer, params ICEParameters, role *
 		return errICETransportClosed
 	}
 
-	t.conn = iceConn
+	t.Conn = iceConn
 
 	config := mux.Config{
-		Conn:          t.conn,
+		Conn:          t.Conn,
 		BufferSize:    int(t.gatherer.api.settingEngine.getReceiveMTU()),
 		LoggerFactory: t.loggerFactory,
 	}
@@ -372,7 +404,7 @@ func (t *ICETransport) ensureGatherer() error {
 
 func (t *ICETransport) collectStats(collector *statsReportCollector) {
 	t.lock.Lock()
-	conn := t.conn
+	conn := t.Conn
 	t.lock.Unlock()
 
 	collector.Collecting()
