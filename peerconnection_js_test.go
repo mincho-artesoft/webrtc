@@ -68,7 +68,7 @@ func TestValueToICECandidate(t *testing.T) {
 			t.Errorf("Case %d: bad test, got error: %v", i, err)
 		}
 		val := *valueToICECandidate(js.ValueOf(v))
-		val.statsID = ""
+		val.StatsID = ""
 		assert.Equal(t, testCase.expect, val)
 	}
 }
