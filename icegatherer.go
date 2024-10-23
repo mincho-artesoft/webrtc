@@ -63,6 +63,24 @@ func (api *API) NewICEGatherer(opts ICEGatherOptions) (*ICEGatherer, error) {
 	}, nil
 }
 
+func NewICEGatherer(opts ICEGatherOptions) (*ICEGatherer, error) {
+	var validatedServers []*stun.URI
+	if len(opts.ICEServers) > 0 {
+		for _, server := range opts.ICEServers {
+			url, err := server.urls()
+			if err != nil {
+				return nil, err
+			}
+			validatedServers = append(validatedServers, url...)
+		}
+	}
+
+	return &ICEGatherer{
+		state:            ICEGathererStateNew,
+		gatherPolicy:     opts.ICEGatherPolicy,
+		validatedServers: validatedServers,
+	}, nil
+}
 func (g *ICEGatherer) createAgent() error {
 	g.lock.Lock()
 	defer g.lock.Unlock()
@@ -137,6 +155,23 @@ func (g *ICEGatherer) createAgent() error {
 	}
 
 	agent, err := ice.NewAgent(config)
+	if err != nil {
+		return err
+	}
+
+	g.agent = agent
+	return nil
+}
+
+func (g *ICEGatherer) createAgentWithOutApi(config ice.AgentConfig) error {
+	g.lock.Lock()
+	defer g.lock.Unlock()
+
+	if g.agent != nil || g.State() != ICEGathererStateNew {
+		return nil
+	}
+
+	agent, err := ice.NewAgent(&config)
 	if err != nil {
 		return err
 	}
@@ -226,6 +261,37 @@ func (g *ICEGatherer) close(shouldGracefullyClose bool) error {
 // GetLocalParameters returns the ICE parameters of the ICEGatherer.
 func (g *ICEGatherer) GetLocalParameters() (ICEParameters, error) {
 	if err := g.createAgent(); err != nil {
+		return ICEParameters{}, err
+	}
+
+	agent := g.getAgent()
+	// it is possible agent had just been closed
+	if agent == nil {
+		return ICEParameters{}, fmt.Errorf("%w: unable to get local parameters", errICEAgentNotExist)
+	}
+
+	frag, pwd, err := agent.GetLocalUserCredentials()
+	if err != nil {
+		return ICEParameters{}, err
+	}
+
+	return ICEParameters{
+		UsernameFragment: frag,
+		Password:         pwd,
+		ICELite:          false,
+	}, nil
+}
+
+// GetLocalParameters returns the ICE parameters of the ICEGatherer.
+func (g *ICEGatherer) GetLocalParametersWithOutApi() (ICEParameters, error) {
+	config := ice.AgentConfig{
+		Urls:           g.validatedServers,
+		CandidateTypes: []ice.CandidateType{ice.CandidateTypeHost, ice.CandidateTypeServerReflexive},
+		NetworkTypes: []ice.NetworkType{
+			ice.NetworkTypeUDP4,
+		},
+	}
+	if err := g.createAgentWithOutApi(config); err != nil {
 		return ICEParameters{}, err
 	}
 

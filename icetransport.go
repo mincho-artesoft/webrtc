@@ -118,6 +118,16 @@ func NewICETransport(gatherer *ICEGatherer, loggerFactory logging.LoggerFactory)
 	iceTransport.setState(ICETransportStateNew)
 	return iceTransport
 }
+func NewICETransportWithOutApi(gatherer *ICEGatherer) *ICETransport {
+	loggerFactory := logging.NewDefaultLoggerFactory()
+	iceTransport := &ICETransport{
+		gatherer:      gatherer,
+		loggerFactory: loggerFactory,
+		log:           loggerFactory.NewLogger("ortc"),
+	}
+	iceTransport.setState(ICETransportStateNew)
+	return iceTransport
+}
 
 // Start incoming connectivity checks based on its configured role.
 func (t *ICETransport) Start(gatherer *ICEGatherer, params ICEParameters, role *ICERole) error {
@@ -204,6 +214,97 @@ func (t *ICETransport) Start(gatherer *ICEGatherer, params ICEParameters, role *
 	config := mux.Config{
 		Conn:          t.Conn,
 		BufferSize:    int(t.gatherer.api.settingEngine.getReceiveMTU()),
+		LoggerFactory: t.loggerFactory,
+	}
+	t.mux = mux.NewMux(config)
+
+	return nil
+}
+
+func (t *ICETransport) StartWithOutApi(gatherer *ICEGatherer, params ICEParameters, role *ICERole) error {
+	t.lock.Lock()
+	defer t.lock.Unlock()
+
+	if t.State() != ICETransportStateNew {
+		return errICETransportNotInNew
+	}
+
+	if gatherer != nil {
+		t.gatherer = gatherer
+	}
+
+	if err := t.ensureGatherer(); err != nil {
+		return err
+	}
+
+	agent := t.gatherer.getAgent()
+	if agent == nil {
+		return fmt.Errorf("%w: unable to start ICETransport", errICEAgentNotExist)
+	}
+
+	if err := agent.OnConnectionStateChange(func(iceState ice.ConnectionState) {
+		state := newICETransportStateFromICE(iceState)
+
+		t.setState(state)
+		t.onConnectionStateChange(state)
+	}); err != nil {
+		return err
+	}
+	if err := agent.OnSelectedCandidatePairChange(func(local, remote ice.Candidate) {
+		candidates, err := newICECandidatesFromICE([]ice.Candidate{local, remote})
+		if err != nil {
+			t.log.Warnf("%w: %s", errICECandiatesCoversionFailed, err)
+			return
+		}
+		t.onSelectedCandidatePairChange(NewICECandidatePair(&candidates[0], &candidates[1]))
+	}); err != nil {
+		return err
+	}
+
+	if role == nil {
+		controlled := ICERoleControlled
+		role = &controlled
+	}
+	t.role = *role
+
+	t.ctx, t.ctxCancel = context.WithCancel(context.Background())
+
+	// Drop the lock here to allow ICE candidates to be
+	// added so that the agent can complete a connection
+	t.lock.Unlock()
+
+	var iceConn *ice.Conn
+	var err error
+	switch *role {
+	case ICERoleControlling:
+		iceConn, err = agent.Dial(t.ctx,
+			params.UsernameFragment,
+			params.Password)
+
+	case ICERoleControlled:
+		iceConn, err = agent.Accept(t.ctx,
+			params.UsernameFragment,
+			params.Password)
+
+	default:
+		err = errICERoleUnknown
+	}
+
+	// Reacquire the lock to set the connection/mux
+	t.lock.Lock()
+	if err != nil {
+		return err
+	}
+
+	if t.State() == ICETransportStateClosed {
+		return errICETransportClosed
+	}
+
+	t.Conn = iceConn
+
+	config := mux.Config{
+		Conn:          t.Conn,
+		BufferSize:    int(1460),
 		LoggerFactory: t.loggerFactory,
 	}
 	t.mux = mux.NewMux(config)
