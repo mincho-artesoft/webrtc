@@ -118,8 +118,12 @@ func (m *Mux) readLoop() {
 
 	buf := make([]byte, m.bufferSize)
 	for {
+		// fmt.Println("readLoop")
 		n, err := m.nextConn.Read(buf)
 		switch {
+		case isQUICPacket(buf):
+			// fmt.Println("tuk")
+			return
 		case errors.Is(err, io.EOF), errors.Is(err, ice.ErrClosed):
 			return
 		case errors.Is(err, io.ErrShortBuffer), errors.Is(err, packetio.ErrTimeout):
@@ -128,6 +132,7 @@ func (m *Mux) readLoop() {
 		case err != nil:
 			m.log.Errorf("mux: ending readLoop packetio.Buffer error %s", err.Error())
 			return
+
 		}
 
 		if err = m.dispatch(buf[:n]); err != nil {
@@ -141,6 +146,13 @@ func (m *Mux) readLoop() {
 	}
 }
 
+func isQUICPacket(data []byte) bool {
+	if len(data) == 0 {
+		return false
+	}
+	// QUIC Long Header packets have the most significant bit set
+	return (data[0] & 0x80) != 0
+}
 func (m *Mux) dispatch(buf []byte) error {
 	if len(buf) == 0 {
 		m.log.Warnf("Warning: mux: unable to dispatch zero length packet")
